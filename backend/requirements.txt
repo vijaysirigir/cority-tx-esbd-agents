@@ -1,0 +1,7 @@
+flask>=3.0
+flask-cors>=4.0
+playwright>=1.40
+openpyxl>=3.1
+gunicorn>=21.2          # production WSGI server (Render runs this)
+# pdfplumber + pypdfium2 are only needed for the one-off brand extraction script,
+# not at runtime.

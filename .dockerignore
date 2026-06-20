@@ -1,0 +1,9 @@
+data/
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+.git/
+.gitignore
+*.md
+assets/cority_brand_reference.png

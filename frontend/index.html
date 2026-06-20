@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cority · ESBD Opportunity Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#002448; --navy-2:#0A3055; --navy-3:#16406B; --navy-glass:rgba(0,36,72,.92);
+    --orange:#E2700F; --orange-2:#F58220; --orange-dk:#C25E08; --orange-soft:rgba(226,112,15,.10);
+    --ink:#16263D; --ink-soft:#566377; --ink-faint:#93A0B4;
+    --bg:#FFFFFF; --bg-soft:#F4F6F9; --bg-soft2:#EDF1F6;
+    --line:#E2E8F0; --line-soft:#EEF2F7;
+    --good:#1F9D6B; --good-soft:rgba(31,157,107,.12);
+    --warn:#C9871A; --warn-soft:rgba(201,135,26,.12);
+    --danger:#C0392B; --danger-soft:rgba(192,57,43,.10);
+    --env:#3FA45B; --safety:#E2700F; --health:#2E86C1; --quality:#7D5BA6; --esg:#159C9C; --risk:#34557A;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    --display:'Poppins',var(--sans); --mono:'JetBrains Mono',ui-monospace,monospace;
+    --radius:12px; --radius-sm:8px;
+    --shadow:0 1px 2px rgba(16,38,61,.04),0 6px 22px rgba(16,38,61,.07);
+    --shadow-lg:0 20px 50px rgba(0,36,72,.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg-soft);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+  button,input,textarea,select{font-family:inherit;}
+  button{cursor:pointer;border:none;background:none;}
+  a{color:inherit;}
+  ::-webkit-scrollbar{height:9px;width:9px;}
+  ::-webkit-scrollbar-thumb{background:#cdd6e2;border-radius:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:14px 30px;gap:16px;}
+  .brand{display:flex;align-items:center;gap:14px;}
+  .logo{font-family:var(--display);font-weight:700;font-size:27px;color:var(--orange);letter-spacing:-.5px;line-height:1;display:inline-flex;align-items:flex-start;}
+  .logo sup{font-size:10px;font-weight:600;margin-top:3px;}
+  .brand-div{width:1px;height:26px;background:var(--line);}
+  .brand-sub{display:flex;flex-direction:column;}
+  .brand-sub b{font-size:13.5px;font-weight:600;color:var(--navy);letter-spacing:-.1px;}
+  .brand-sub span{font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.13em;}
+  .top-actions{display:flex;align-items:center;gap:12px;}
+  .watch-toggle{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-soft);background:var(--bg-soft);border:1px solid var(--line);border-radius:20px;padding:6px 12px;}
+  .watch-toggle input{accent-color:var(--orange);width:14px;height:14px;}
+  .btn{border-radius:8px;font-size:13px;font-weight:600;padding:10px 16px;display:inline-flex;align-items:center;gap:8px;transition:.15s;border:1px solid transparent;white-space:nowrap;}
+  .btn-orange{background:var(--orange);color:#fff;box-shadow:0 2px 10px rgba(226,112,15,.32);}
+  .btn-orange:hover{background:var(--orange-dk);}
+  .btn-ghost{background:#fff;color:var(--navy);border-color:var(--line);}
+  .btn-ghost:hover{border-color:var(--navy);}
+  .btn:disabled{opacity:.5;cursor:default;box-shadow:none;}
+  .btn-sm{font-size:12px;padding:7px 12px;border-radius:7px;}
+
+  /* ---------- Hero ---------- */
+  .hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 55%,var(--navy-3) 100%);color:#fff;padding:34px 30px 30px;position:relative;overflow:hidden;}
+  .hero::after{content:"";position:absolute;right:-80px;top:-80px;width:360px;height:360px;border-radius:50%;
+    background:radial-gradient(circle,rgba(226,112,15,.22),transparent 70%);}
+  .hero-inner{max-width:1280px;margin:0 auto;position:relative;z-index:1;}
+  .hero h1{font-family:var(--display);font-weight:700;font-size:27px;margin:0 0 6px;letter-spacing:-.4px;}
+  .hero h1 .accent{color:var(--orange-2);}
+  .hero p{margin:0;color:#B9C6D8;font-size:13.5px;max-width:680px;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px;}
+  .kpi{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:var(--radius);padding:16px 18px;backdrop-filter:blur(4px);}
+  .kpi .num{font-family:var(--display);font-weight:700;font-size:30px;line-height:1;}
+  .kpi .num.accent{color:var(--orange-2);}
+  .kpi .lbl{font-size:11px;color:#9DB0C8;text-transform:uppercase;letter-spacing:.08em;margin-top:8px;}
+  .kpi .sub{font-size:10.5px;color:#7E91AC;margin-top:3px;}
+
+  main{max-width:1280px;margin:0 auto;padding:26px 30px 80px;}
+
+  /* ---------- Pipeline stepper ---------- */
+  .pipeline{display:flex;align-items:center;gap:0;margin:4px 0 26px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px 22px;box-shadow:var(--shadow);}
+  .pstep{display:flex;align-items:center;gap:12px;flex:1;}
+  .pstep .pdot{width:38px;height:38px;border-radius:50%;background:var(--bg-soft2);color:var(--ink-faint);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:15px;flex-shrink:0;border:2px solid transparent;transition:.25s;}
+  .pstep.active .pdot{background:var(--orange);color:#fff;box-shadow:0 0 0 4px var(--orange-soft);}
+  .pstep.done .pdot{background:var(--good);color:#fff;}
+  .pstep .ptxt b{display:block;font-size:13px;font-weight:600;color:var(--ink);}
+  .pstep .ptxt span{font-size:11px;color:var(--ink-faint);}
+  .pline{height:2px;flex:.5;background:var(--line);margin:0 6px;border-radius:2px;}
+  .pline.done{background:var(--good);}
+
+  /* ---------- Agent cards ---------- */
+  .agent{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;}
+  .agent-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line-soft);}
+  .agent-num{width:34px;height:34px;border-radius:9px;background:var(--navy);color:#fff;font-family:var(--display);font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
+  .agent-title b{font-family:var(--display);font-size:15.5px;font-weight:600;color:var(--navy);display:block;}
+  .agent-title span{font-size:12px;color:var(--ink-soft);}
+  .agent-status{margin-left:auto;display:flex;align-items:center;gap:10px;}
+  .pill{font-size:11px;font-weight:600;padding:5px 11px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;}
+  .pill .pdotc{width:7px;height:7px;border-radius:50%;}
+  .s-idle{background:var(--bg-soft2);color:var(--ink-soft);} .s-idle .pdotc{background:var(--ink-faint);}
+  .s-run{background:var(--orange-soft);color:var(--orange-dk);} .s-run .pdotc{background:var(--orange);animation:pulse 1s infinite;}
+  .s-done{background:var(--good-soft);color:var(--good);} .s-done .pdotc{background:var(--good);}
+  .s-err{background:var(--danger-soft);color:var(--danger);} .s-err .pdotc{background:var(--danger);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+  .agent-body{padding:20px 22px;}
+  .agent-desc{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;max-width:760px;}
+
+  .field-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 18px;}
+  .fg-full{grid-column:1/-1;}
+  .field label{display:block;font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:600;}
+  .field input[type=text],.field input[type=date],.field select,.field textarea{
+    width:100%;border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;color:var(--ink);background:#fff;transition:.15s;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-soft);}
+  .field textarea{resize:vertical;min-height:64px;font-family:var(--mono);font-size:12px;}
+  .field.hidden{display:none;}
+  .status-checks{display:flex;flex-wrap:wrap;gap:8px;}
+  .check-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;user-select:none;transition:.12s;}
+  .check-chip:hover{border-color:var(--navy);}
+  .check-chip.on{border-color:var(--orange);background:var(--orange-soft);color:var(--orange-dk);font-weight:600;}
+  .check-chip input{display:none;}
+
+  .slider-row{display:flex;align-items:center;gap:14px;}
+  .slider-row input[type=range]{flex:1;accent-color:var(--orange);}
+  .slider-val{font-family:var(--display);font-weight:700;font-size:20px;color:var(--orange);width:34px;text-align:center;}
+
+  .agent-actions{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap;}
+  .hint{font-size:11.5px;color:var(--ink-faint);}
+
+  /* ---------- Console ---------- */
+  .console{display:none;margin-top:16px;background:#04182E;border-radius:var(--radius-sm);border:1px solid #0C2C4C;overflow:hidden;}
+  .console.show{display:block;}
+  .console-head{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #0C2C4C;}
+  .console-head .dot{width:9px;height:9px;border-radius:50%;}
+  .console-head .t{margin-left:8px;font-size:11px;color:#69839E;text-transform:uppercase;letter-spacing:.1em;}
+  .console-body{padding:12px 16px;font-family:var(--mono);font-size:11.5px;line-height:1.7;color:#C7D6E8;max-height:220px;overflow-y:auto;white-space:pre-wrap;}
+  .console-body .ts{color:var(--orange-2);}
+
+  /* ---------- Results ---------- */
+  .results{margin-top:18px;display:none;}
+  .results.show{display:block;animation:fade .25s;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .results-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap;}
+  .results-bar .summary{font-size:13px;color:var(--ink);}
+  .results-bar .summary b{color:var(--navy);font-family:var(--display);}
+  .tbl-wrap{border:1px solid var(--line);border-radius:var(--radius-sm);overflow:auto;max-height:440px;}
+  table.tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+  table.tbl thead th{position:sticky;top:0;background:var(--bg-soft);text-align:left;padding:10px 12px;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);font-weight:600;border-bottom:1px solid var(--line);white-space:nowrap;z-index:1;}
+  table.tbl tbody td{padding:10px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+  table.tbl tbody tr:last-child td{border-bottom:none;}
+  table.tbl tbody tr:hover td{background:var(--bg-soft);}
+  .score-pill{font-family:var(--display);font-weight:700;font-size:13px;border-radius:7px;padding:3px 9px;display:inline-block;min-width:30px;text-align:center;}
+  .sc-hi{background:var(--good-soft);color:var(--good);}
+  .sc-mid{background:var(--warn-soft);color:var(--warn);}
+  .sc-lo{background:var(--bg-soft2);color:var(--ink-soft);}
+  .ptag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;border-radius:5px;padding:2px 7px;margin:1px 3px 1px 0;display:inline-block;color:#fff;}
+  .pt-env{background:var(--env);} .pt-saf{background:var(--safety);} .pt-hea{background:var(--health);}
+  .pt-qua{background:var(--quality);} .pt-esg{background:var(--esg);} .pt-ris{background:var(--risk);} .pt-def{background:var(--ink-faint);}
+  .kw{font-size:11px;color:var(--ink-soft);}
+  .cell-title{font-weight:600;color:var(--navy);max-width:320px;}
+  .cell-rec{font-size:11.5px;color:var(--ink-soft);max-width:280px;}
+  .att-badge{font-size:11px;font-weight:600;color:var(--orange-dk);background:var(--orange-soft);border-radius:6px;padding:2px 8px;}
+  .link-out{color:var(--health);font-size:11.5px;text-decoration:none;}
+  .link-out:hover{text-decoration:underline;}
+  .empty{padding:26px;text-align:center;color:var(--ink-faint);font-size:12.5px;}
+  .err-box{background:var(--danger-soft);border:1px solid rgba(192,57,43,.25);color:var(--danger);border-radius:var(--radius-sm);padding:12px 14px;font-size:12.5px;margin-top:14px;}
+
+  /* ---------- Workbook card ---------- */
+  .wb-card{background:linear-gradient(135deg,var(--navy),var(--navy-2));color:#fff;border-radius:var(--radius);padding:24px 26px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;box-shadow:var(--shadow-lg);}
+  .wb-left h3{font-family:var(--display);font-size:17px;margin:0 0 4px;}
+  .wb-left p{margin:0;color:#A9BACF;font-size:12.5px;}
+  .wb-sheets{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .wb-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:9px 14px;min-width:120px;}
+  .wb-chip .nm{font-size:11px;color:#9DB0C8;}
+  .wb-chip .ct{font-family:var(--display);font-weight:700;font-size:18px;}
+
+  /* ---------- Toast ---------- */
+  .toast-wrap{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:90;}
+  .toast{background:#fff;border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:10px;box-shadow:var(--shadow-lg);padding:13px 18px;font-size:13px;color:var(--ink);min-width:240px;max-width:360px;opacity:0;transform:translateX(20px);transition:.3s;}
+  .toast.show{opacity:1;transform:none;}
+  .toast.good{border-left-color:var(--good);} .toast.err{border-left-color:var(--danger);}
+  .toast b{display:block;margin-bottom:2px;font-family:var(--display);font-size:13px;}
+
+  @media(max-width:860px){
+    .kpis{grid-template-columns:repeat(2,1fr);}
+    .field-grid{grid-template-columns:1fr;}
+    .pipeline{flex-direction:column;align-items:stretch;gap:10px;}
+    .pline{display:none;}
+    main,.hero,.topbar{padding-left:18px;padding-right:18px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== TOP BAR ===================== -->
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">cority<sup>&reg;</sup></span>
+    <span class="brand-div"></span>
+    <span class="brand-sub">
+      <b>ESBD Opportunity Engine</b>
+      <span>Texas SmartBuy · ESHQ Intelligence</span>
+    </span>
+  </div>
+  <div class="top-actions">
+    <label class="watch-toggle" title="Show the browser window while agents run">
+      <input type="checkbox" id="headful"> Watch browser
+    </label>
+    <button class="btn btn-ghost btn-sm" id="dl-csv">↓ CSV</button>
+    <button class="btn btn-orange" id="dl-wb">↓ Download Workbook</button>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="hero-inner">
+    <h1>Find &amp; qualify <span class="accent">EHS+ opportunities</span> on Texas SmartBuy</h1>
+    <p>Three coordinated agents search the Electronic State Business Daily, surface solicitations that fit Cority's Environment, Safety, Health &amp; Quality solutions, and pull full RFP details with attachments — all into one Excel workbook.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="num" id="kpi-raw">0</div><div class="lbl">Raw results</div><div class="sub" id="kpi-raw-sub">Agent 1 · CSV export</div></div>
+      <div class="kpi"><div class="num accent" id="kpi-opps">0</div><div class="lbl">ESHQ opportunities</div><div class="sub" id="kpi-opps-sub">Agent 2 · scored fits</div></div>
+      <div class="kpi"><div class="num" id="kpi-rfp">0</div><div class="lbl">RFPs detailed</div><div class="sub" id="kpi-rfp-sub">Agent 3 · deep extract</div></div>
+      <div class="kpi"><div class="num" id="kpi-att">0</div><div class="lbl">Attachments saved</div><div class="sub">files downloaded</div></div>
+    </div>
+  </div>
+</section>
+
+<main>
+  <!-- Pipeline -->
+  <div class="pipeline" id="pipeline">
+    <div class="pstep" data-step="1"><div class="pdot">1</div><div class="ptxt"><b>Search &amp; Export</b><span>Query ESBD → CSV</span></div></div>
+    <div class="pline" data-line="1"></div>
+    <div class="pstep" data-step="2"><div class="pdot">2</div><div class="ptxt"><b>Qualify ESHQ</b><span>Score Cority fit</span></div></div>
+    <div class="pline" data-line="2"></div>
+    <div class="pstep" data-step="3"><div class="pdot">3</div><div class="ptxt"><b>Extract RFPs</b><span>Details + files</span></div></div>
+  </div>
+
+  <!-- ============ AGENT 1 ============ -->
+  <section class="agent" id="card-1">
+    <div class="agent-head">
+      <div class="agent-num">1</div>
+      <div class="agent-title"><b>Search &amp; Export Agent</b><span>Searches Texas SmartBuy ESBD and exports results to CSV</span></div>
+      <div class="agent-status"><span class="pill s-idle" id="st-1"><span class="pdotc"></span>Idle</span></div>
+    </div>
+    <div class="agent-body">
+      <p class="agent-desc">Pick how you want to search, fill in your criteria, and the agent will run the search on <b>txsmartbuy.gov/esbd</b> and click <b>Export to CSV</b> — loading the results into sheet 1 of the workbook.</p>
+
+      <div class="field-grid">
+        <div class="field fg-full">
+          <label>Search by</label>
+          <select id="search-mode">
+            <option value="keyword">Keyword Search</option>
+            <option value="solicitation">Solicitation ID</option>
+            <option value="status">Status</option>
+            <option value="preset">Date Range (preset)</option>
+            <option value="custom">Custom Start / End Date</option>
+            <option value="advanced">Advanced — combine everything</option>
+          </select>
+        </div>
+
+        <div class="field fg-full" data-mode="keyword advanced" id="f-keyword">
+          <label>Keyword</label>
+          <input type="text" id="in-keyword" placeholder="e.g. safety management software, EHS, quality system…">
+        </div>
+
+        <div class="field fg-full" data-mode="solicitation advanced" id="f-solic">
+          <label>Solicitation ID</label>
+          <input type="text" id="in-solic" placeholder="e.g. 529-25-001">
+        </div>
+
+        <div class="field fg-full hidden" data-mode="status advanced" id="f-status">
+          <label>Status</label>
+          <select id="in-status"></select>
+        </div>
+
+        <div class="field hidden" data-mode="preset advanced" id="f-preset">
+          <label>Date Range</label>
+          <select id="in-preset">
+            <option value="">— none —</option>
+          </select>
+        </div>
+
+        <div class="field hidden" data-mode="custom advanced" id="f-start">
+          <label>Start Date</label>
+          <input type="date" id="in-start">
+        </div>
+        <div class="field hidden" data-mode="custom advanced" id="f-end">
+          <label>End Date</label>
+          <input type="date" id="in-end">
+        </div>
+
+        <div class="field hidden" data-mode="advanced" id="f-agency">
+          <label>Agency / SmartBuy Member (optional)</label>
+          <input type="text" id="in-agency" placeholder="exact name as listed on ESBD">
+        </div>
+      </div>
+
+      <div class="agent-actions">
+        <button class="btn btn-orange" id="run-1">▶ Run Search &amp; Export</button>
+        <span class="hint">Tip: leave criteria blank to export the current full ESBD list.</span>
+      </div>
+
+      <div class="console" id="con-1"><div class="console-head"><span class="dot" style="background:#FF5F56"></span><span class="dot" style="background:#FFBD2E"></span><span class="dot" style="background:#27C93F"></span><span class="t">agent 1 · live log</span></div><div class="console-body" id="log-1"></div></div>
+
+      <div class="results" id="res-1">
+        <div class="results-bar"><div class="summary" id="sum-1"></div><button class="btn btn-ghost btn-sm" id="dl-csv-2">↓ Download CSV</button></div>
+        <div class="tbl-wrap" id="tbl-1"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ AGENT 2 ============ -->
+  <section class="agent" id="card-2">
+    <div class="agent-head">
+      <div class="agent-num">2</div>
+      <div class="agent-title"><b>ESHQ Qualification Agent</b><span>Reviews the CSV and flags Cority-relevant opportunities</span></div>
+      <div class="agent-status"><span class="pill s-idle" id="st-2"><span class="pdotc"></span>Idle</span></div>
+    </div>
+    <div class="agent-body">
+      <p class="agent-desc">Scores every solicitation against Cority's ESHQ pillars — Environment, Safety, Health, Quality, Sustainability/ESG and Compliance/Risk — keeps the fits, and writes them with a fit score, matched solution areas and a recommendation into sheet 2.</p>
+
+      <div class="field-grid">
+        <div class="field fg-full">
+          <label>Minimum fit score to keep</label>
+          <div class="slider-row">
+            <input type="range" id="in-minscore" min="1" max="10" value="3">
+            <span class="slider-val" id="minscore-val">3</span>
+          </div>
+          <span class="hint">Higher = stricter. 3 captures possible fits; 5+ keeps only strong matches.</span>
+        </div>
+      </div>
+
+      <div class="agent-actions">
+        <button class="btn btn-orange" id="run-2">▶ Review &amp; Qualify</button>
+        <span class="hint">Uses the most recent CSV from Agent 1.</span>
+      </div>
+
+      <div class="console" id="con-2"><div class="console-head"><span class="dot" style="background:#FF5F56"></span><span class="dot" style="background:#FFBD2E"></span><span class="dot" style="background:#27C93F"></span><span class="t">agent 2 · live log</span></div><div class="console-body" id="log-2"></div></div>
+
+      <div class="results" id="res-2">
+        <div class="results-bar"><div class="summary" id="sum-2"></div></div>
+        <div class="tbl-wrap" id="tbl-2"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ AGENT 3 ============ -->
+  <section class="agent" id="card-3">
+    <div class="agent-head">
+      <div class="agent-num">3</div>
+      <div class="agent-title"><b>RFP Detail &amp; Attachment Agent</b><span>Opens each RFP and captures full details + attachments</span></div>
+      <div class="agent-status"><span class="pill s-idle" id="st-3"><span class="pdotc"></span>Idle</span></div>
+    </div>
+    <div class="agent-body">
+      <p class="agent-desc">For each solicitation, re-searches the ESBD, clicks through the RFP hyperlink, extracts all detail fields and downloads every attachment into <b>data/attachments/&lt;id&gt;</b> — writing one row per RFP into sheet 3.</p>
+
+      <div class="field-grid">
+        <div class="field fg-full">
+          <label>Solicitation IDs <span style="text-transform:none;font-weight:400;color:var(--ink-faint)">— leave blank to use the qualified opportunities from Agent 2</span></label>
+          <textarea id="in-ids" placeholder="One ID per line, or comma-separated. Blank = pull from sheet 2."></textarea>
+        </div>
+        <div class="field">
+          <label>Limit (when pulling from Agent 2)</label>
+          <input type="text" id="in-limit" placeholder="e.g. 10 (blank = all)">
+        </div>
+      </div>
+
+      <div class="agent-actions">
+        <button class="btn btn-orange" id="run-3">▶ Extract RFP Details</button>
+        <span class="hint">Each RFP opens a real browser session — this is the slowest step.</span>
+      </div>
+
+      <div class="console" id="con-3"><div class="console-head"><span class="dot" style="background:#FF5F56"></span><span class="dot" style="background:#FFBD2E"></span><span class="dot" style="background:#27C93F"></span><span class="t">agent 3 · live log</span></div><div class="console-body" id="log-3"></div></div>
+
+      <div class="results" id="res-3">
+        <div class="results-bar"><div class="summary" id="sum-3"></div></div>
+        <div class="tbl-wrap" id="tbl-3"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Workbook -->
+  <div class="wb-card">
+    <div class="wb-left">
+      <h3>Master workbook</h3>
+      <p>All three agents read &amp; write a single Excel file with three sheets.</p>
+      <div class="wb-sheets">
+        <div class="wb-chip"><div class="nm">1 · Raw Results</div><div class="ct" id="wb-s1">0</div></div>
+        <div class="wb-chip"><div class="nm">2 · ESHQ Opportunities</div><div class="ct" id="wb-s2">0</div></div>
+        <div class="wb-chip"><div class="nm">3 · RFP Details</div><div class="ct" id="wb-s3">0</div></div>
+      </div>
+    </div>
+    <button class="btn btn-orange" id="dl-wb-2">↓ Download Excel Workbook</button>
+  </div>
+</main>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+const API = "";  // same origin
+const STATUS_OPTIONS = ["Posted","Awarded","No Award","Closed","Posting Cancelled"];
+const DATE_PRESETS = ["This Week","This Month","This Fiscal Year","Last Week","Last Month","Last Fiscal Year"];
+const PILLAR_CLASS = {"Environmental":"pt-env","Safety":"pt-saf","Health":"pt-hea","Quality":"pt-qua","Sustainability / ESG":"pt-esg","Compliance / Risk":"pt-ris"};
+
+const $ = (id)=>document.getElementById(id);
+
+// ---- build dynamic controls ----
+function buildStatus(){
+  $("in-status").innerHTML = '<option value="">Any status</option>'+
+    STATUS_OPTIONS.map(s=>`<option>${s}</option>`).join("");
+}
+function buildPresets(){
+  $("in-preset").innerHTML = '<option value="">— none —</option>'+DATE_PRESETS.map(p=>`<option>${p}</option>`).join("");
+}
+buildStatus(); buildPresets();
+
+// ---- search mode toggle ----
+$("search-mode").addEventListener("change",applyMode);
+function applyMode(){
+  const mode=$("search-mode").value;
+  document.querySelectorAll("[data-mode]").forEach(el=>{
+    const modes=el.getAttribute("data-mode").split(" ");
+    el.classList.toggle("hidden", !modes.includes(mode));
+  });
+}
+applyMode();
+
+// ---- min score slider ----
+$("in-minscore").addEventListener("input",e=>$("minscore-val").textContent=e.target.value);
+
+// ---- helpers ----
+function setStatus(n,state,text){
+  const el=$("st-"+n); const map={idle:"s-idle",run:"s-run",done:"s-done",err:"s-err"};
+  el.className="pill "+map[state]; el.innerHTML='<span class="pdotc"></span>'+text;
+}
+function setStep(n,state){ // state: active|done|''
+  const step=document.querySelector(`.pstep[data-step="${n}"]`);
+  step.classList.remove("active","done"); if(state) step.classList.add(state);
+  if(state==="done" && n<3){ const line=document.querySelector(`.pline[data-line="${n}"]`); if(line) line.classList.add("done"); }
+}
+function appendLog(n,text){
+  const box=$("log-"+n);
+  const html=text.split("\n").map(line=>{
+    const m=line.match(/^(\[\d{2}:\d{2}:\d{2}\])(.*)$/);
+    return m ? `<span class="ts">${m[1]}</span>${escapeHtml(m[2])}` : escapeHtml(line);
+  }).join("\n");
+  box.innerHTML=html; box.scrollTop=box.scrollHeight;
+}
+function escapeHtml(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function toast(title,msg,kind){
+  const t=document.createElement("div"); t.className="toast "+(kind||"");
+  t.innerHTML=`<b>${title}</b>${msg||""}`; $("toasts").appendChild(t);
+  requestAnimationFrame(()=>t.classList.add("show"));
+  setTimeout(()=>{t.classList.remove("show");setTimeout(()=>t.remove(),350);},4200);
+}
+function scoreClass(s){return s>=8?"sc-hi":s>=5?"sc-mid":"sc-lo";}
+function pillarTags(pillars){
+  return (pillars||[]).map(p=>`<span class="ptag ${PILLAR_CLASS[p]||'pt-def'}">${p.replace(' / ',' ')}</span>`).join("");
+}
+
+// ---- core run/poll ----
+async function runAgent(n, params){
+  $("run-"+n).disabled=true;
+  setStatus(n,"run","Running…"); setStep(n,"active");
+  $("con-"+n).classList.add("show"); appendLog(n,"Starting…");
+  let job;
+  try{
+    const r=await fetch(API+"/api/run/agent"+n,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(params)});
+    job=await r.json();
+    if(job.error) throw new Error(job.error);
+  }catch(e){ failAgent(n,e.message); return; }
+  poll(n, job.job_id);
+}
+function poll(n, jobId){
+  const iv=setInterval(async()=>{
+    let s;
+    try{ s=await (await fetch(API+"/api/status/"+jobId)).json(); }catch(e){ return; }
+    if(s.log) appendLog(n,s.log);
+    if(!s.running){
+      clearInterval(iv);
+      $("run-"+n).disabled=false;
+      const res=s.result||{};
+      if(res.ok){ finishAgent(n,res); }
+      else { failAgent(n,(res&&res.error)||"Agent failed — see log.", res); }
+      refreshState();
+    }
+  },1000);
+}
+function failAgent(n,msg,res){
+  setStatus(n,"err","Error"); $("run-"+n).disabled=false;
+  $("res-"+n).classList.add("show");
+  let extra = (res&&res.debug)?`<div style="margin-top:8px;font-size:11px;">Debug snapshot saved: <code>${escapeHtml(res.debug)}</code></div>`:"";
+  $("tbl-"+n).innerHTML=`<div class="err-box"><b>Couldn't finish.</b> ${escapeHtml(msg)}${extra}</div>`;
+  $("sum-"+n).innerHTML="";
+  toast("Agent "+n+" error", escapeHtml(msg).slice(0,120), "err");
+}
+function finishAgent(n,res){
+  setStatus(n,"done","Done"); setStep(n,"done");
+  $("res-"+n).classList.add("show");
+  if(n===1) renderA1(res);
+  if(n===2) renderA2(res);
+  if(n===3) renderA3(res);
+  toast("Agent "+n+" complete","",  "good");
+}
+
+// ---- renderers ----
+function renderA1(res){
+  $("sum-1").innerHTML=`Exported <b>${res.row_count}</b> rows → loaded into sheet 1. <span class="hint">Source: ${escapeHtml((res.csv_path||'').split(/[\\/]/).pop())}</span>`;
+  const rows=res.preview||[]; const headers=res.headers||(rows[0]?Object.keys(rows[0]):[]);
+  if(!rows.length){ $("tbl-1").innerHTML='<div class="empty">No rows returned. Try broader criteria.</div>'; return; }
+  const show=headers.slice(0,7);
+  let h="<table class='tbl'><thead><tr>"+show.map(c=>`<th>${escapeHtml(c)}</th>`).join("")+"</tr></thead><tbody>";
+  rows.slice(0,25).forEach(r=>{ h+="<tr>"+show.map(c=>`<td>${escapeHtml(String(r[c]??"")).slice(0,90)}</td>`).join("")+"</tr>"; });
+  h+="</tbody></table>"; $("tbl-1").innerHTML=h;
+}
+function renderA2(res){
+  const ops=res.opportunities||[];
+  $("sum-2").innerHTML=`Reviewed <b>${res.reviewed}</b> · matched <b>${res.matched}</b> ESHQ opportunities (min score ${res.min_score}).`;
+  if(!ops.length){ $("tbl-2").innerHTML='<div class="empty">No ESHQ-relevant opportunities at this threshold. Lower the minimum score or broaden Agent 1.</div>'; return; }
+  let h="<table class='tbl'><thead><tr><th>Fit</th><th>Solicitation ID</th><th>Title</th><th>Agency</th><th>Solution Areas</th><th>Recommendation</th></tr></thead><tbody>";
+  ops.forEach(o=>{
+    h+=`<tr>
+      <td><span class="score-pill ${scoreClass(o.score)}">${o.score}</span></td>
+      <td><b>${escapeHtml(o.solicitation_id||"—")}</b></td>
+      <td class="cell-title">${escapeHtml(o.title||"")}<div class="kw">${escapeHtml((o.keywords||[]).slice(0,6).join(", "))}</div></td>
+      <td>${escapeHtml(o.agency||"")}</td>
+      <td>${pillarTags(o.pillars)} ${o.software?'<span class="ptag pt-def">software</span>':''}</td>
+      <td class="cell-rec">${escapeHtml(o.recommendation||"")}</td>
+    </tr>`;
+  });
+  h+="</tbody></table>"; $("tbl-2").innerHTML=h;
+}
+function renderA3(res){
+  const recs=res.records||[];
+  $("sum-3").innerHTML=`Processed <b>${res.processed}</b> RFP(s)${res.errors&&res.errors.length?` · <span style="color:var(--danger)">${res.errors.length} issue(s)</span>`:""}.`;
+  if(!recs.length){ $("tbl-3").innerHTML='<div class="empty">No RFPs processed.</div>'; return; }
+  let h="<table class='tbl'><thead><tr><th>Solicitation ID</th><th>Title</th><th>Agency</th><th>Due</th><th>Attachments</th><th>Link</th></tr></thead><tbody>";
+  recs.forEach(r=>{
+    const files=(r.attachment_files||[]).map(f=>escapeHtml(f)).join("<br>");
+    h+=`<tr>
+      <td><b>${escapeHtml(r.solicitation_id||"")}</b></td>
+      <td class="cell-title">${escapeHtml(r.title||"")}</td>
+      <td>${escapeHtml(r.agency||"")}</td>
+      <td>${escapeHtml(r.due||"")}</td>
+      <td><span class="att-badge">${r.attachment_count||0} file(s)</span>${files?`<div class="kw" style="margin-top:5px">${files}</div>`:""}</td>
+      <td>${r.url?`<a class="link-out" href="${escapeHtml(r.url)}" target="_blank">open ↗</a>`:""}</td>
+    </tr>`;
+  });
+  h+="</tbody></table>"; $("tbl-3").innerHTML=h;
+}
+
+// ---- gather params ----
+function agent1Params(){
+  const p={headful:$("headful").checked};
+  const v=id=>$(id).value.trim();
+  if(v("in-keyword")) p.keyword=v("in-keyword");
+  if(v("in-solic")) p.solicitation_id=v("in-solic");
+  if(v("in-agency")) p.agency=v("in-agency");
+  if(v("in-preset")) p.date_preset=v("in-preset");
+  if(v("in-start")) p.start_date=fmtDate(v("in-start"));
+  if(v("in-end")) p.end_date=fmtDate(v("in-end"));
+  if(v("in-status")) p.status=v("in-status");
+  return p;
+}
+// ESBD date inputs expect mm/dd/yyyy; <input type=date> gives yyyy-mm-dd.
+function fmtDate(s){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s); return m? `${m[2]}/${m[3]}/${m[1]}` : s;
+}
+function agent3Params(){
+  const raw=$("in-ids").value.trim();
+  const ids=raw? raw.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean):[];
+  const p={headful:$("headful").checked};
+  if(ids.length) p.solicitation_ids=ids;
+  const lim=$("in-limit").value.trim(); if(lim&&!isNaN(lim)) p.limit=parseInt(lim,10);
+  return p;
+}
+
+// ---- wire buttons ----
+$("run-1").addEventListener("click",()=>runAgent(1, agent1Params()));
+$("run-2").addEventListener("click",()=>runAgent(2, {min_score:parseInt($("in-minscore").value,10)}));
+$("run-3").addEventListener("click",()=>runAgent(3, agent3Params()));
+$("dl-wb").addEventListener("click",()=>dl("/api/download/workbook"));
+$("dl-wb-2").addEventListener("click",()=>dl("/api/download/workbook"));
+$("dl-csv").addEventListener("click",()=>dl("/api/download/csv"));
+$("dl-csv-2").addEventListener("click",()=>dl("/api/download/csv"));
+function dl(path){ window.location.href=API+path; }
+
+// ---- dashboard state ----
+async function refreshState(){
+  try{
+    const s=await (await fetch(API+"/api/state")).json();
+    const sh=s.sheets||{};
+    const s1=sh["1. Raw Search Results"]||0, s2=sh["2. ESHQ Opportunities"]||0, s3=sh["3. RFP Details"]||0;
+    $("kpi-raw").textContent=s1; $("kpi-opps").textContent=s2; $("kpi-rfp").textContent=s3;
+    $("kpi-att").textContent=s.attachment_count||0;
+    $("wb-s1").textContent=s1; $("wb-s2").textContent=s2; $("wb-s3").textContent=s3;
+    if(s.latest_csv) $("kpi-raw-sub").textContent=s.latest_csv;
+  }catch(e){}
+}
+refreshState();
+setInterval(refreshState, 15000);
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# Render Blueprint — deploys the Cority ESBD engine as a Docker web service.
+# In Render: New → Blueprint → connect this repo → it reads this file.
+#
+# NOTE on plans:
+#   * The persistent `disk` below requires a paid instance (Starter, $7/mo+).
+#   * Chromium is RAM-hungry; if agent runs crash with out-of-memory, bump
+#     `plan` to `standard` (2 GB).
+#   * To use the FREE tier instead: delete the `disk:` block and set
+#     `plan: free`. Outputs then reset whenever the service restarts/sleeps.
+services:
+  - type: web
+    name: cority-esbd-engine
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: oregon            # change to your nearest region if you like
+    healthCheckPath: /
+    autoDeployTrigger: commit
+    disk:
+      name: cority-data
+      mountPath: /app/data    # the workbook, CSVs and attachments live here
+      sizeGB: 1
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
