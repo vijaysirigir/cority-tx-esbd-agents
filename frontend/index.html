@@ -176,7 +176,47 @@
   .toast.good{border-left-color:var(--good);} .toast.err{border-left-color:var(--danger);}
   .toast b{display:block;margin-bottom:2px;font-family:var(--display);font-size:13px;}
 
+  /* ---------- Agent 2: opportunity cards ---------- */
+  .select-bar{display:none;align-items:center;gap:14px;background:var(--bg-soft);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:12px;flex-wrap:wrap;}
+  .select-bar .sel-all{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;}
+  .select-bar .sel-all input{accent-color:var(--orange);width:15px;height:15px;}
+  #sel-count-2{font-size:12.5px;color:var(--ink-faint);}
+  #pull-selected-2{margin-left:auto;}
+
+  .opp{display:grid;grid-template-columns:150px 1fr 190px;gap:18px;border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;background:#fff;transition:.15s;}
+  .opp:hover{border-color:#cfd8e3;box-shadow:var(--shadow);}
+  .opp-l{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;}
+  .opp-check{align-self:flex-start;}
+  .opp-check input{width:16px;height:16px;accent-color:var(--orange);cursor:pointer;}
+  .score-ring{width:74px;height:74px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:25px;line-height:1;border:3px solid;}
+  .score-ring span{font-size:9px;font-weight:500;color:var(--ink-faint);margin-top:1px;}
+  .tier-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:4px 9px;border-radius:20px;color:#fff;line-height:1.2;}
+  .t-exec{border-color:var(--good);color:var(--good);} .tier-badge.t-exec{background:var(--good);}
+  .t-high{border-color:var(--orange);color:var(--orange-dk);} .tier-badge.t-high{background:var(--orange);}
+  .t-sales{border-color:var(--health);color:var(--health);} .tier-badge.t-sales{background:var(--health);}
+  .t-monitor{border-color:#6B7A90;color:#6B7A90;} .tier-badge.t-monitor{background:#6B7A90;}
+  .t-archive{border-color:var(--ink-faint);color:var(--ink-faint);} .tier-badge.t-archive{background:var(--ink-faint);}
+
+  .opp-title{font-family:var(--display);font-weight:600;font-size:14.5px;color:var(--navy);margin-bottom:3px;}
+  .opp-meta{font-size:11.5px;color:var(--ink-faint);margin-bottom:8px;}
+  .opp-mods{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px;}
+  .mod-chip{font-size:10.5px;background:var(--navy-soft,rgba(0,36,72,.06));border:1px solid var(--line);border-radius:14px;padding:3px 9px;color:var(--navy);}
+  .mod-chip b{color:var(--orange-dk);}
+  .opp-why{font-size:11.5px;color:var(--ink-soft);line-height:1.5;margin-bottom:10px;}
+  .subscores{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 16px;margin-bottom:8px;}
+  .sub{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--ink-soft);}
+  .sub .sl{width:96px;flex-shrink:0;} .sub .sl i{color:var(--ink-faint);font-style:normal;font-size:9px;}
+  .sub .sbar{flex:1;height:6px;background:var(--bg-soft2);border-radius:4px;overflow:hidden;}
+  .sub .sbar span{display:block;height:100%;background:linear-gradient(90deg,var(--navy),var(--orange));border-radius:4px;}
+  .sub .sv{width:20px;text-align:right;font-weight:600;color:var(--ink);}
+  .exec-toggle{background:none;border:none;color:var(--health);font-size:11.5px;font-weight:600;padding:2px 0;cursor:pointer;}
+  .exec-body{white-space:pre-wrap;font-family:var(--mono);font-size:11px;line-height:1.55;color:var(--ink-soft);background:var(--bg-soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:8px;max-height:340px;overflow:auto;}
+  .opp-r{display:flex;flex-direction:column;align-items:flex-start;gap:10px;}
+  .opp-r .link-out{font-size:11px;}
+
   @media(max-width:860px){
+    .opp{grid-template-columns:1fr;}
+    .opp-l{flex-direction:row;justify-content:flex-start;}
     .kpis{grid-template-columns:repeat(2,1fr);}
     .field-grid{grid-template-columns:1fr;}
     .pipeline{flex-direction:column;align-items:stretch;gap:10px;}
@@ -308,25 +348,25 @@
   <section class="agent" id="card-2">
     <div class="agent-head">
       <div class="agent-num">2</div>
-      <div class="agent-title"><b>ESHQ Qualification Agent</b><span>Reviews the CSV and flags Cority-relevant opportunities</span></div>
+      <div class="agent-title"><b>Opportunity Scoring Agent</b><span>Scores each solicitation 0–100 across 5 weighted factors</span></div>
       <div class="agent-status"><span class="pill s-idle" id="st-2"><span class="pdotc"></span>Idle</span></div>
     </div>
     <div class="agent-body">
-      <p class="agent-desc">Scores every solicitation against Cority's ESHQ pillars — Environment, Safety, Health, Quality, Sustainability/ESG and Compliance/Risk — keeps the fits, and writes them with a fit score, matched solution areas and a recommendation into sheet 2.</p>
+      <p class="agent-desc">Runs the Cority Opportunity model on every solicitation — <b>Keyword 20% · Semantic 30% · Agency Fit 15% · Tech Intent 20% · Budget 15%</b> → a 0–100 score and an action tier — then recommends Cority modules and writes a full executive summary to sheet 2. Pick the opportunities you want and hand them to Agent 3.</p>
 
       <div class="field-grid">
         <div class="field fg-full">
-          <label>Minimum fit score to keep</label>
+          <label>Minimum opportunity score to keep</label>
           <div class="slider-row">
-            <input type="range" id="in-minscore" min="1" max="10" value="3">
-            <span class="slider-val" id="minscore-val">3</span>
+            <input type="range" id="in-minscore" min="0" max="100" step="5" value="60">
+            <span class="slider-val" id="minscore-val">60</span>
           </div>
-          <span class="hint">Higher = stricter. 3 captures possible fits; 5+ keeps only strong matches.</span>
+          <span class="hint" id="minscore-hint">Keeps <b>Monitor</b> and above. 90+ Executive · 80+ High Priority · 70+ Sales Review · 60+ Monitor.</span>
         </div>
       </div>
 
       <div class="agent-actions">
-        <button class="btn btn-orange" id="run-2">▶ Review &amp; Qualify</button>
+        <button class="btn btn-orange" id="run-2">▶ Score Opportunities</button>
         <span class="hint">Uses the most recent CSV from Agent 1.</span>
       </div>
 
@@ -334,7 +374,12 @@
 
       <div class="results" id="res-2">
         <div class="results-bar"><div class="summary" id="sum-2"></div></div>
-        <div class="tbl-wrap" id="tbl-2"></div>
+        <div class="select-bar" id="select-bar-2">
+          <label class="sel-all"><input type="checkbox" id="sel-all-2"> Select all</label>
+          <span id="sel-count-2">0 selected</span>
+          <button class="btn btn-orange btn-sm" id="pull-selected-2" disabled>⇩ Pull selected RFPs &amp; attachments → Agent 3</button>
+        </div>
+        <div id="tbl-2"></div>
       </div>
     </div>
   </section>
@@ -347,7 +392,7 @@
       <div class="agent-status"><span class="pill s-idle" id="st-3"><span class="pdotc"></span>Idle</span></div>
     </div>
     <div class="agent-body">
-      <p class="agent-desc">For each solicitation, re-searches the ESBD, clicks through the RFP hyperlink, extracts all detail fields and downloads every attachment into <b>data/attachments/&lt;id&gt;</b> — writing one row per RFP into sheet 3.</p>
+      <p class="agent-desc">Driven by your picks in Agent 2 — use the <b>⇩ Pull</b> buttons above and the IDs land here automatically. For each one it opens the RFP on the ESBD, extracts all detail fields and downloads every attachment into <b>data/attachments/&lt;id&gt;</b>, writing one row per RFP into sheet 3. You can also paste IDs manually.</p>
 
       <div class="field-grid">
         <div class="field fg-full">
@@ -420,8 +465,20 @@ function applyMode(){
 }
 applyMode();
 
-// ---- min score slider ----
-$("in-minscore").addEventListener("input",e=>$("minscore-val").textContent=e.target.value);
+// ---- min score slider + opportunity tiers ----
+const TIERS=[
+  {min:90,label:"Immediate Executive Review",cls:"t-exec"},
+  {min:80,label:"High Priority",cls:"t-high"},
+  {min:70,label:"Sales Review",cls:"t-sales"},
+  {min:60,label:"Monitor",cls:"t-monitor"},
+  {min:0, label:"Archive",cls:"t-archive"},
+];
+function tierFor(score){return TIERS.find(t=>score>=t.min)||TIERS[TIERS.length-1];}
+$("in-minscore").addEventListener("input",e=>{
+  $("minscore-val").textContent=e.target.value;
+  $("minscore-hint").innerHTML="Keeps <b>"+tierFor(parseInt(e.target.value,10)).label
+    +"</b> and above. 90+ Executive · 80+ High Priority · 70+ Sales Review · 60+ Monitor.";
+});
 
 // ---- helpers ----
 function setStatus(n,state,text){
@@ -508,22 +565,81 @@ function renderA1(res){
   rows.slice(0,25).forEach(r=>{ h+="<tr>"+show.map(c=>`<td>${escapeHtml(String(r[c]??"")).slice(0,90)}</td>`).join("")+"</tr>"; });
   h+="</tbody></table>"; $("tbl-1").innerHTML=h;
 }
+let oppData=[];
+let oppSelected=new Set();
+
 function renderA2(res){
-  const ops=res.opportunities||[];
-  $("sum-2").innerHTML=`Reviewed <b>${res.reviewed}</b> · matched <b>${res.matched}</b> ESHQ opportunities (min score ${res.min_score}).`;
-  if(!ops.length){ $("tbl-2").innerHTML='<div class="empty">No ESHQ-relevant opportunities at this threshold. Lower the minimum score or broaden Agent 1.</div>'; return; }
-  let h="<table class='tbl'><thead><tr><th>Fit</th><th>Solicitation ID</th><th>Title</th><th>Agency</th><th>Solution Areas</th><th>Recommendation</th></tr></thead><tbody>";
-  ops.forEach(o=>{
-    h+=`<tr>
-      <td><span class="score-pill ${scoreClass(o.score)}">${o.score}</span></td>
-      <td><b>${escapeHtml(o.solicitation_id||"—")}</b></td>
-      <td class="cell-title">${escapeHtml(o.title||"")}<div class="kw">${escapeHtml((o.keywords||[]).slice(0,6).join(", "))}</div></td>
-      <td>${escapeHtml(o.agency||"")}</td>
-      <td>${pillarTags(o.pillars)} ${o.software?'<span class="ptag pt-def">software</span>':''}</td>
-      <td class="cell-rec">${escapeHtml(o.recommendation||"")}</td>
-    </tr>`;
-  });
-  h+="</tbody></table>"; $("tbl-2").innerHTML=h;
+  oppData=res.opportunities||[];
+  oppSelected=new Set();
+  const tc=res.tier_counts||{};
+  const tcStr=Object.entries(tc).map(([k,v])=>`${v} ${k}`).join(" · ");
+  $("sum-2").innerHTML=`Scored <b>${res.reviewed}</b> · kept <b>${res.matched}</b> (≥${res.min_score}) · ${res.archived||0} archived`
+    + (tcStr?` <span class="hint">— ${escapeHtml(tcStr)}</span>`:"");
+  if(!oppData.length){
+    $("select-bar-2").style.display="none";
+    $("tbl-2").innerHTML='<div class="empty">No opportunities at or above this score. Lower the threshold or broaden Agent 1.</div>';
+    return;
+  }
+  $("select-bar-2").style.display="flex";
+  $("tbl-2").innerHTML=oppData.map((o,i)=>oppCard(o,i)).join("");
+  wireOppCards();
+  updateSelCount();
+}
+
+function oppCard(o,i){
+  const t=tierFor(o.score);
+  const mods=(o.modules||[]).slice(0,4).map(m=>`<span class="mod-chip">${escapeHtml(m.module)} <b>${m.confidence}%</b></span>`).join("");
+  const subs=o.subscores||{};
+  const bars=[["Keyword",subs.keyword,20],["Semantic",subs.semantic,30],["Agency Fit",subs.agency,15],["Tech Intent",subs.technology,20],["Budget",subs.budget,15]]
+    .map(([lbl,v,w])=>`<div class="sub"><span class="sl">${lbl} <i>${w}%</i></span><span class="sbar"><span style="width:${v||0}%"></span></span><span class="sv">${v||0}</span></div>`).join("");
+  return `<div class="opp">
+    <div class="opp-l">
+      <label class="opp-check"><input type="checkbox" class="opp-cb" data-id="${escapeHtml(o.solicitation_id||"")}"></label>
+      <div class="score-ring ${t.cls}">${o.score}<span>/100</span></div>
+      <span class="tier-badge ${t.cls}">${t.label}</span>
+    </div>
+    <div class="opp-m">
+      <div class="opp-title">${escapeHtml(o.title||"(untitled)")}</div>
+      <div class="opp-meta">ID <b>${escapeHtml(o.solicitation_id||"—")}</b> · Agency ${escapeHtml(o.agency||"—")} · Due ${escapeHtml(o.due||"—")}</div>
+      <div class="opp-mods">${mods||'<span class="hint">No specific module match</span>'}</div>
+      <div class="opp-why">${escapeHtml(o.why_fits||"")}</div>
+      <div class="subscores">${bars}</div>
+      <button class="exec-toggle" data-i="${i}">▾ Executive summary</button>
+      <pre class="exec-body" id="exec-${i}" style="display:none"></pre>
+    </div>
+    <div class="opp-r">
+      <button class="btn btn-orange btn-sm pull-one" data-id="${escapeHtml(o.solicitation_id||"")}">⇩ Pull RFP &amp; attachments</button>
+      ${o.source_url?`<a class="link-out" href="${escapeHtml(o.source_url)}" target="_blank">view on ESBD ↗</a>`:""}
+    </div>
+  </div>`;
+}
+
+function wireOppCards(){
+  document.querySelectorAll(".opp-cb").forEach(cb=>cb.addEventListener("change",()=>{
+    if(cb.checked) oppSelected.add(cb.dataset.id); else oppSelected.delete(cb.dataset.id);
+    updateSelCount();
+  }));
+  document.querySelectorAll(".exec-toggle").forEach(btn=>btn.addEventListener("click",()=>{
+    const i=btn.dataset.i, body=$("exec-"+i);
+    if(body.style.display==="none"){ body.textContent=oppData[i].executive_summary||""; body.style.display="block"; btn.textContent="▴ Hide summary"; }
+    else { body.style.display="none"; btn.textContent="▾ Executive summary"; }
+  }));
+  document.querySelectorAll(".pull-one").forEach(btn=>btn.addEventListener("click",()=>pullToAgent3([btn.dataset.id])));
+}
+
+function updateSelCount(){
+  const n=oppSelected.size;
+  $("sel-count-2").textContent=`${n} selected`;
+  $("pull-selected-2").disabled=n===0;
+  const all=$("sel-all-2"); if(all) all.checked=n>0 && n===oppData.length;
+}
+
+function pullToAgent3(ids){
+  ids=(ids||[]).filter(Boolean);
+  if(!ids.length){ toast("Nothing selected","Tick one or more opportunities first.","err"); return; }
+  $("in-ids").value=ids.join("\n");
+  document.getElementById("card-3").scrollIntoView({behavior:"smooth",block:"start"});
+  runAgent(3,{solicitation_ids:ids, headful:$("headful").checked});
 }
 function renderA3(res){
   const recs=res.records||[];
@@ -579,6 +695,16 @@ $("dl-wb-2").addEventListener("click",()=>dl("/api/download/workbook"));
 $("dl-csv").addEventListener("click",()=>dl("/api/download/csv"));
 $("dl-csv-2").addEventListener("click",()=>dl("/api/download/csv"));
 function dl(path){ window.location.href=API+path; }
+
+// ---- Agent 2 selection -> Agent 3 ----
+$("sel-all-2").addEventListener("change",e=>{
+  document.querySelectorAll(".opp-cb").forEach(cb=>{
+    cb.checked=e.target.checked;
+    if(e.target.checked) oppSelected.add(cb.dataset.id); else oppSelected.delete(cb.dataset.id);
+  });
+  updateSelCount();
+});
+$("pull-selected-2").addEventListener("click",()=>pullToAgent3([...oppSelected]));
 
 // ---- dashboard state ----
 async function refreshState(){

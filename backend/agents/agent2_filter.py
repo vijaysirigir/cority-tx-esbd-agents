@@ -1,14 +1,20 @@
 """
-Agent 2 - ESHQ Opportunity Review.
+Agent 2 - Opportunity Qualification & Scoring.
 
-Reads the CSV that Agent 1 downloaded (or the most recent one), scores every
-solicitation against Cority's ESHQ product pillars (see cority_keywords.py),
-keeps the relevant ones, and writes them - with fit score, matched solution
-areas, matched keywords and a recommendation - into sheet 2 of the master
-workbook.
+Reads the CSV Agent 1 downloaded (or the most recent one) and runs the
+multi-factor Cority Opportunity Scoring model (see scoring.py) on every
+solicitation:
+
+    Opportunity Score = Keyword(20%) + Semantic(30%) + Agency(15%)
+                      + Technology(20%) + Budget(15%)
+
+It keeps rows at/above the chosen minimum score, writes them - with all
+sub-scores, recommended modules and a full executive summary - into sheet 2 of
+the master workbook, and returns rich JSON so the UI can present each scored
+opportunity with buttons to hand selected ones to Agent 3.
 
 Run standalone:
-    echo '{"min_score":3}' | python agents/agent2_filter.py --out r.json
+    echo '{"min_score":60}' | python agents/agent2_filter.py --out r.json
 """
 from __future__ import annotations
 
@@ -19,23 +25,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import config
-from agents import browser as b  # only for log/emit helpers
-from agents import cority_keywords as ck
+from agents import browser as b          # log / emit helpers
 from agents import excel_store
+from agents import scoring
 
-# Heuristics to locate common columns inside whatever the ESBD CSV gives us.
-_AGENCY_HINTS = ["agency", "member name", "organization", "entity"]
-_STATUS_HINTS = ["status"]
-_DUE_HINTS = ["due", "close", "response date", "deadline"]
-_POSTED_HINTS = ["posting", "posted", "issue date", "open date", "created"]
-
-
-def _find_col(headers: list[str], hints: list[str]) -> str | None:
-    for h in headers:
-        hl = (h or "").lower()
-        if any(hint in hl for hint in hints):
-            return h
-    return None
+OUT_HEADERS = [
+    "Opportunity Score", "Action", "Solicitation ID", "Title", "Agency",
+    "Due Date", "Keyword (20%)", "Semantic (30%)", "Agency Fit (15%)",
+    "Tech Intent (20%)", "Budget (15%)", "Recommended Modules",
+    "Why Cority Fits", "Executive Summary", "Source URL",
+]
+# 1-based columns that hold long free text (wrapped + widened in Excel).
+WIDE_COLS = [4, 12, 13, 14]
 
 
 def _latest_csv() -> Path | None:
@@ -45,83 +46,51 @@ def _latest_csv() -> Path | None:
 
 
 def run(params: dict) -> dict:
-    min_score = int(params.get("min_score", 3))
+    # Default threshold 60 = "Monitor and above" on the action scale.
+    min_score = int(params.get("min_score", 60))
     csv_path = params.get("csv_path")
+    csv_path = Path(csv_path) if csv_path else _latest_csv()
 
     result: dict = {"ok": False, "agent": "agent2"}
-
-    if csv_path:
-        csv_path = Path(csv_path)
-    else:
-        csv_path = _latest_csv()
-
     if not csv_path or not Path(csv_path).exists():
-        result["error"] = (
-            "No source CSV found. Run Agent 1 first, or pass an explicit "
-            "csv_path."
-        )
+        result["error"] = ("No source CSV found. Run Agent 1 first, or pass an "
+                           "explicit csv_path.")
         return result
 
-    b.log(f"Agent 2 - reviewing {Path(csv_path).name}...")
+    b.log(f"Agent 2 - scoring {Path(csv_path).name} with the Cority "
+          f"Opportunity model...")
     headers, rows = excel_store.read_csv(csv_path)
     b.log(f"  - {len(rows)} rows, {len(headers)} columns")
 
-    agency_col = _find_col(headers, _AGENCY_HINTS)
-    status_col = _find_col(headers, _STATUS_HINTS)
-    due_col = _find_col(headers, _DUE_HINTS)
-    posted_col = _find_col(headers, _POSTED_HINTS)
+    analyses = [scoring.analyze(row) for row in rows]
+    analyses.sort(key=lambda a: a.score, reverse=True)
 
-    out_headers = [
-        "Cority Fit Score", "Solicitation ID", "Title", "Agency", "Status",
-        "Due / Close Date", "Posted Date", "Solution Area(s)",
-        "Matched Keywords", "Software Signal", "Recommendation",
-    ]
-    out_rows = []
-    opportunities = []
+    kept = [a for a in analyses if a.score >= min_score]
+    archived = len(analyses) - len(kept)
 
-    for row in rows:
-        m = ck.score_row(row, min_score=min_score)
-        if m.score < min_score:
-            continue
-        sid = ck.pick_id(row)
-        title = ck.pick_title(row)
-        agency = row.get(agency_col, "") if agency_col else ""
-        status = row.get(status_col, "") if status_col else ""
-        due = row.get(due_col, "") if due_col else ""
-        posted = row.get(posted_col, "") if posted_col else ""
+    out_rows = [scoring.to_row(a) for a in kept]
+    wb = excel_store.write_sheet(config.SHEET_OPPS, OUT_HEADERS, out_rows,
+                                 index=1, wide_cols=WIDE_COLS)
+    b.log(f"  - {len(kept)} opportunities >= {min_score} written to "
+          f"'{config.SHEET_OPPS}' ({archived} archived below threshold)")
 
-        out_rows.append([
-            m.score, sid, title, agency, status, due, posted,
-            ", ".join(m.pillars), ", ".join(m.keywords),
-            "Yes" if m.software_signal else "No", m.recommendation,
-        ])
-        opportunities.append({
-            "score": m.score, "solicitation_id": sid, "title": title,
-            "agency": agency, "status": status, "due": due,
-            "pillars": m.pillars, "keywords": m.keywords,
-            "software": m.software_signal, "recommendation": m.recommendation,
-        })
-
-    # Best opportunities first.
-    paired = sorted(zip(out_rows, opportunities),
-                    key=lambda t: t[0][0], reverse=True)
-    out_rows = [p[0] for p in paired]
-    opportunities = [p[1] for p in paired]
-
-    wb = excel_store.write_sheet(
-        config.SHEET_OPPS, out_headers, out_rows, index=1,
-        wide_cols=[3, 9, 11],  # Title, Matched Keywords, Recommendation
-    )
-    b.log(f"  - {len(out_rows)} ESHQ opportunities written to '{config.SHEET_OPPS}'")
+    # Tier counts for a quick read-out.
+    tiers: dict[str, int] = {}
+    for a in kept:
+        tiers[a.action] = tiers.get(a.action, 0) + 1
+    for action, n in tiers.items():
+        b.log(f"      - {action}: {n}")
 
     result.update(
         ok=True,
         workbook=str(wb),
         source_csv=str(csv_path),
         reviewed=len(rows),
-        matched=len(out_rows),
+        matched=len(kept),
+        archived=archived,
         min_score=min_score,
-        opportunities=opportunities,
+        tier_counts=tiers,
+        opportunities=[scoring.to_json(a) for a in kept],
     )
     return result
 
