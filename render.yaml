@@ -15,7 +15,7 @@ services:
     plan: starter
     region: oregon            # change to your nearest region if you like
     healthCheckPath: /
-    autoDeployTrigger: commit
+    autoDeploy: true
     disk:
       name: cority-data
       mountPath: /app/data    # the workbook, CSVs and attachments live here

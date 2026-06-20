@@ -30,5 +30,6 @@ EXPOSE 5000
 # Single gunicorn worker (the in-memory job registry must be shared), several
 # threads for the poll endpoints. Long timeout because agent subprocesses run
 # independently but the worker should never be recycled mid-poll.
-CMD gunicorn --workers 1 --threads 8 --timeout 180 --pythonpath . \
-    --bind 0.0.0.0:${PORT:-5000} app:app
+# JSON/exec form so SIGTERM from the platform reaches gunicorn directly; `sh -c`
+# is only there to expand the platform-provided $PORT.
+CMD ["sh", "-c", "exec gunicorn --workers 1 --threads 8 --timeout 180 --pythonpath . --bind 0.0.0.0:${PORT:-5000} app:app"]
