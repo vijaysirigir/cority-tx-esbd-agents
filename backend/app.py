@@ -33,6 +33,7 @@ AGENT_SCRIPTS = {
     "agent1": BACKEND_DIR / "agents" / "agent1_search.py",
     "agent2": BACKEND_DIR / "agents" / "agent2_filter.py",
     "agent3": BACKEND_DIR / "agents" / "agent3_details.py",
+    "agent4": BACKEND_DIR / "agents" / "agent4_insights.py",
 }
 
 app = Flask(__name__, static_folder=None)

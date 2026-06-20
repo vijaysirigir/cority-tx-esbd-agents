@@ -107,19 +107,23 @@ def run(params: dict) -> dict:
     # Write sheet 3
     out_headers = [
         "Solicitation ID", "Title", "Agency", "Status", "Posted Date",
-        "Due / Close Date", "Contact", "Detail URL", "Description",
+        "Due / Close Date", "Contact", "Contact Name", "Contact Number",
+        "Contact Email", "Estimated Value", "Detail URL", "Description",
         "Key Fields", "# Attachments", "Attachment Files", "Saved Folder",
     ]
     out_rows = [[
         r["solicitation_id"], r["title"], r["agency"], r["status"],
-        r["posted"], r["due"], r["contact"], r["url"], r["description"],
+        r["posted"], r["due"], r["contact"], r.get("contact_name", ""),
+        r.get("contact_number", ""), r.get("contact_email", ""),
+        r.get("estimated_value", ""), r["url"], r["description"],
         r["key_fields_text"], r["attachment_count"],
         "\n".join(r["attachment_files"]), r["folder"],
     ] for r in records]
 
     wb = excel_store.write_sheet(
         config.SHEET_DETAILS, out_headers, out_rows, index=2,
-        wide_cols=[2, 9, 10, 12],  # Title, Description, Key Fields, Attachment Files
+        # Title, Description, Key Fields, Attachment Files
+        wide_cols=[2, 13, 14, 16],
     )
     b.log(f"Agent 3 - wrote {len(out_rows)} rows to '{config.SHEET_DETAILS}'")
 
@@ -174,6 +178,14 @@ def _extract_one(page, sid: str) -> dict:
         "posted": _pick(fields, ["posting date", "posted", "issue date"]),
         "due": _pick(fields, ["response due", "due date", "close", "deadline"]),
         "contact": _contact(fields),
+        "contact_name": _pick(fields, ["contact name"]),
+        "contact_number": (_pick(fields, ["contact number", "contact phone"])
+                           or _pick(fields, ["phone"])),
+        "contact_email": _pick(fields, ["contact email"]) or _pick(fields, ["email"]),
+        "estimated_value": _pick(fields, ["estimated value", "estimated contract "
+                                          "value", "contract value", "estimated "
+                                          "amount", "award amount", "total value",
+                                          "not to exceed"]),
         "url": detail_url,
         "description": (_section_after(body, ["Solicitation Description",
                                               "Description", "Scope"])
@@ -470,7 +482,9 @@ def _safe(name: str) -> str:
 def _empty_record(sid: str, error: str = "") -> dict:
     return {
         "solicitation_id": sid, "title": f"(not found) {sid}", "agency": "",
-        "status": "", "posted": "", "due": "", "contact": "", "url": "",
+        "status": "", "posted": "", "due": "", "contact": "",
+        "contact_name": "", "contact_number": "", "contact_email": "",
+        "estimated_value": "", "url": "",
         "description": error, "fields": {}, "key_fields_text": "",
         "folder": "", "attachment_files": [], "attachment_paths": [],
         "attachment_count": 0,
@@ -481,6 +495,10 @@ def _record_summary(r: dict) -> dict:
     return {
         "solicitation_id": r["solicitation_id"], "title": r["title"],
         "agency": r["agency"], "status": r["status"], "due": r["due"],
+        "contact_name": r.get("contact_name", ""),
+        "contact_number": r.get("contact_number", ""),
+        "contact_email": r.get("contact_email", ""),
+        "estimated_value": r.get("estimated_value", ""),
         "url": r["url"], "attachment_count": r["attachment_count"],
         "attachment_files": r["attachment_files"],
     }

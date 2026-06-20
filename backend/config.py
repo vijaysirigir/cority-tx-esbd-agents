@@ -32,6 +32,7 @@ MASTER_WORKBOOK = OUTPUT_DIR / "ESBD_Cority_Opportunities.xlsx"
 SHEET_RAW = "1. Raw Search Results"
 SHEET_OPPS = "2. ESHQ Opportunities"
 SHEET_DETAILS = "3. RFP Details"
+SHEET_INSIGHTS = "4. Search Insights"
 
 # ---------------------------------------------------------------------------
 # Target website

@@ -214,6 +214,15 @@
   .opp-r{display:flex;flex-direction:column;align-items:flex-start;gap:10px;}
   .opp-r .link-out{font-size:11px;}
 
+  /* ---------- Agent 4: insight tiles ---------- */
+  .insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+  .insight-tile{border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;background:#fff;}
+  .insight-tile.accent{background:linear-gradient(135deg,var(--navy),var(--navy-2));border-color:var(--navy);}
+  .insight-tile .it-num{font-family:var(--display);font-weight:700;font-size:26px;color:var(--navy);line-height:1.1;}
+  .insight-tile.accent .it-num{color:#fff;}
+  .insight-tile .it-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin-top:7px;}
+  .insight-tile.accent .it-lbl{color:#A9BACF;}
+
   @media(max-width:860px){
     .opp{grid-template-columns:1fr;}
     .opp-l{flex-direction:row;justify-content:flex-start;}
@@ -268,6 +277,8 @@
     <div class="pstep" data-step="2"><div class="pdot">2</div><div class="ptxt"><b>Qualify ESHQ</b><span>Score Cority fit</span></div></div>
     <div class="pline" data-line="2"></div>
     <div class="pstep" data-step="3"><div class="pdot">3</div><div class="ptxt"><b>Extract RFPs</b><span>Details + files</span></div></div>
+    <div class="pline" data-line="3"></div>
+    <div class="pstep" data-step="4"><div class="pdot">4</div><div class="ptxt"><b>Insights</b><span>Search summary</span></div></div>
   </div>
 
   <!-- ============ AGENT 1 ============ -->
@@ -419,15 +430,40 @@
     </div>
   </section>
 
+  <!-- ============ AGENT 4 ============ -->
+  <section class="agent" id="card-4">
+    <div class="agent-head">
+      <div class="agent-num">4</div>
+      <div class="agent-title"><b>Search Insights Agent</b><span>Rolls up the whole search into one summary</span></div>
+      <div class="agent-status"><span class="pill s-idle" id="st-4"><span class="pdotc"></span>Idle</span></div>
+    </div>
+    <div class="agent-body">
+      <p class="agent-desc">Summarises the current search across every sheet — totals for solicitations, contacts and estimated value — and writes them to sheet 4. Run it after Agent 3 so the contact &amp; value tallies are populated.</p>
+
+      <div class="agent-actions">
+        <button class="btn btn-orange" id="run-4">▶ Generate Insights</button>
+        <span class="hint">Instant — reads the workbook, no browser needed.</span>
+      </div>
+
+      <div class="console" id="con-4"><div class="console-head"><span class="dot" style="background:#FF5F56"></span><span class="dot" style="background:#FFBD2E"></span><span class="dot" style="background:#27C93F"></span><span class="t">agent 4 · live log</span></div><div class="console-body" id="log-4"></div></div>
+
+      <div class="results" id="res-4">
+        <div class="results-bar"><div class="summary" id="sum-4"></div></div>
+        <div class="insight-grid" id="tiles-4"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- Workbook -->
   <div class="wb-card">
     <div class="wb-left">
       <h3>Master workbook</h3>
-      <p>All three agents read &amp; write a single Excel file with three sheets.</p>
+      <p>All four agents read &amp; write a single Excel file with four sheets.</p>
       <div class="wb-sheets">
         <div class="wb-chip"><div class="nm">1 · Raw Results</div><div class="ct" id="wb-s1">0</div></div>
         <div class="wb-chip"><div class="nm">2 · ESHQ Opportunities</div><div class="ct" id="wb-s2">0</div></div>
         <div class="wb-chip"><div class="nm">3 · RFP Details</div><div class="ct" id="wb-s3">0</div></div>
+        <div class="wb-chip"><div class="nm">4 · Search Insights</div><div class="ct" id="wb-s4">—</div></div>
       </div>
     </div>
     <button class="btn btn-orange" id="dl-wb-2">↓ Download Excel Workbook</button>
@@ -488,7 +524,7 @@ function setStatus(n,state,text){
 function setStep(n,state){ // state: active|done|''
   const step=document.querySelector(`.pstep[data-step="${n}"]`);
   step.classList.remove("active","done"); if(state) step.classList.add(state);
-  if(state==="done" && n<3){ const line=document.querySelector(`.pline[data-line="${n}"]`); if(line) line.classList.add("done"); }
+  if(state==="done" && n<4){ const line=document.querySelector(`.pline[data-line="${n}"]`); if(line) line.classList.add("done"); }
 }
 function appendLog(n,text){
   const box=$("log-"+n);
@@ -552,6 +588,7 @@ function finishAgent(n,res){
   if(n===1) renderA1(res);
   if(n===2) renderA2(res);
   if(n===3) renderA3(res);
+  if(n===4) renderA4(res);
   toast("Agent "+n+" complete","",  "good");
 }
 
@@ -659,6 +696,22 @@ function renderA3(res){
   });
   h+="</tbody></table>"; $("tbl-3").innerHTML=h;
 }
+function renderA4(res){
+  const m=res.metrics||{};
+  $("sum-4").innerHTML=`Search summary generated ${res.generated_at?("· "+escapeHtml(res.generated_at)):""} — written to sheet 4.`;
+  const tile=(label,val,accent)=>`<div class="insight-tile${accent?' accent':''}"><div class="it-num">${val}</div><div class="it-lbl">${label}</div></div>`;
+  const tiles=[
+    tile("Total Solicitation IDs", m.solicitation_ids ?? 0, true),
+    tile("Total Contact Names", m.contact_names ?? 0, true),
+    tile("Total Contact Numbers", m.contact_numbers ?? 0, true),
+    tile("Total Contact Emails", m.contact_emails ?? 0, true),
+    tile("Sum of Estimated Value", escapeHtml(m.estimated_value_display||"—"), true),
+    tile("ESHQ Opportunities", m.eshq_opportunities ?? 0),
+    tile("RFPs Detailed", m.rfps_detailed ?? 0),
+    tile("Attachments Saved", m.attachments_saved ?? 0),
+  ].join("");
+  $("tiles-4").innerHTML=tiles;
+}
 
 // ---- gather params ----
 function agent1Params(){
@@ -690,6 +743,7 @@ function agent3Params(){
 $("run-1").addEventListener("click",()=>runAgent(1, agent1Params()));
 $("run-2").addEventListener("click",()=>runAgent(2, {min_score:parseInt($("in-minscore").value,10)}));
 $("run-3").addEventListener("click",()=>runAgent(3, agent3Params()));
+$("run-4").addEventListener("click",()=>runAgent(4, {}));
 $("dl-wb").addEventListener("click",()=>dl("/api/download/workbook"));
 $("dl-wb-2").addEventListener("click",()=>dl("/api/download/workbook"));
 $("dl-csv").addEventListener("click",()=>dl("/api/download/csv"));
@@ -715,6 +769,7 @@ async function refreshState(){
     $("kpi-raw").textContent=s1; $("kpi-opps").textContent=s2; $("kpi-rfp").textContent=s3;
     $("kpi-att").textContent=s.attachment_count||0;
     $("wb-s1").textContent=s1; $("wb-s2").textContent=s2; $("wb-s3").textContent=s3;
+    $("wb-s4").textContent=("4. Search Insights" in sh)?"✓":"—";
     if(s.latest_csv) $("kpi-raw-sub").textContent=s.latest_csv;
   }catch(e){}
 }

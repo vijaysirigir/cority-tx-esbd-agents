@@ -167,7 +167,8 @@ def _style_sheet(ws: Worksheet, ncols: int, wide: set[int]) -> None:
     ws.row_dimensions[1].height = 26
 
 
-_SHEET_ORDER = [config.SHEET_RAW, config.SHEET_OPPS, config.SHEET_DETAILS]
+_SHEET_ORDER = [config.SHEET_RAW, config.SHEET_OPPS, config.SHEET_DETAILS,
+                config.SHEET_INSIGHTS]
 
 
 def _reorder(wb: Workbook) -> None:
